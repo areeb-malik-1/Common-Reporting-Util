@@ -134,7 +134,7 @@ public class DBUtil {
         Predicate<DBEntry> matchPlatform = e -> platform.equals(Platform.ALL) || e.platform().equals(platform);
         Predicate<DBEntry> matchTestType = e -> testtype.equals(TestType.ALL) || e.testType().equals(testtype);
         Predicate<DBEntry> matchEnvironment = e -> environment.equals(Environment.ALL) || e.environment().equals(environment);
-        Predicate<DBEntry> matchDate = e -> System.currentTimeMillis() - e.timestamp() > 1000 * 60 * 60 * 24;
+        Predicate<DBEntry> matchDate = e -> System.currentTimeMillis() - e.timestamp() < 1000 * 60 * 60 * 24;
         return latestEntries
                 .filter(matchVertical)
                 .filter(matchTribe)
