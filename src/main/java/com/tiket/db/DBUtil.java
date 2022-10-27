@@ -74,7 +74,7 @@ public class DBUtil {
                 .sorted(Comparator.comparing(DBEntry::testRailID))
                 .sorted(Comparator.comparing(DBEntry::timestamp))
                 .toList();
-        log.debug("sorted entries: " + gson.toJson(entries));
+        log.info("sorted entries: " + gson.toJson(entries));
         List<DBEntry> latestEntries = new ArrayList<>();
         for(int i=0; i<entries.size()-1; i++) {
             DBEntry entryI = entries.get(i);
@@ -88,7 +88,7 @@ public class DBUtil {
         if(!entries.get(entries.size()-1).equals(entries.get(entries.size()-2))) {
             latestEntries.add(entries.get(entries.size()-1));
         }
-        log.debug("latest entries: " + gson.toJson(latestEntries));
+        log.info("latest entries: " + gson.toJson(latestEntries));
         return latestEntries;
     }
 
@@ -144,7 +144,7 @@ public class DBUtil {
             }
 
         }
-        log.debug(gson.toJson(entries));
+        log.info(gson.toJson(entries));
         return entries.stream();
     }
 
