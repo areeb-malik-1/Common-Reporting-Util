@@ -11,9 +11,7 @@
     </Appenders>
 
     <Loggers>
-        <Level value="WARN"/>
-        <Root>
-            <Level value="WARN"/>
+        <Root level="DEBUG">
             <AppenderRef ref="console"/>
         </Root>
     </Loggers>
