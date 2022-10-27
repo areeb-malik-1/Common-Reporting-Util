@@ -2,6 +2,8 @@ package com.tiket.email;
 
 import com.tiket.model.Status;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +18,7 @@ public class Report {
                 Tribe tribe = new Tribe(t.name);
                 int total = t.statuses.size();
                 int pass = (int) t.statuses.stream().filter(s -> s == Status.PASS).count();
-                tribe.passPercentage = ((double) pass / total) * 100;
+                tribe.passPercentage = getTruncatedValue(((double) pass / total) * 100);
                 vertical.tribes.add(tribe);
             });
             verticals.add(vertical);
@@ -39,5 +41,11 @@ public class Report {
         public Tribe(String name) {
             this.name = name;
         }
+    }
+
+    private static double getTruncatedValue(double value) {
+        return BigDecimal.valueOf(value)
+                .setScale(1, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 }
