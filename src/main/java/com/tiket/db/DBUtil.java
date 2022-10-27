@@ -38,7 +38,7 @@ public class DBUtil {
         String runID = System.getProperty("runID").strip();
 
         Report report = createReport(vertical, tribe, module, platform, testType, environment, runID);
-        log.debug(gson.toJson(report));
+        log.info(gson.toJson(report));
     }
 
     private static Report createReport(
