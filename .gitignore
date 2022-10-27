@@ -91,3 +91,4 @@ nb-configuration.xml
 ## Browserstack
 ##############################
 *.err
+report/
