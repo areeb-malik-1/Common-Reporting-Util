@@ -1,4 +1,4 @@
-package com.tiket.report;
+package com.tiket.email;
 
 import com.tiket.model.DBEntry;
 import com.tiket.model.Status;

@@ -4,16 +4,15 @@ import com.google.gson.Gson;
 import com.tiket.email.Convertor;
 import com.tiket.io.PropertiesReader;
 import com.tiket.model.*;
-import com.tiket.report.RawReport;
-import com.tiket.report.Report;
+import com.tiket.email.EmailProcessor;
+import com.tiket.email.RawReport;
+import com.tiket.email.Report;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -46,11 +45,12 @@ public class DBUtil {
         Report report = createReport(vertical, tribe, module, platform, testType, environment, runID);
         log.info(gson.toJson(report));
 
-        createHtmlReportFile(report);
+        String htmlReportContent = createHtmlReportFile(report);
+        EmailProcessor.processEmail(htmlReportContent);
     }
 
     @SneakyThrows
-    private static void createHtmlReportFile(Report report) {
+    private static String createHtmlReportFile(Report report) {
 
         final File reportDirectory = new File("./report");
         if(!reportDirectory.exists()) {
@@ -63,6 +63,8 @@ public class DBUtil {
 
         String content = Convertor.fromJson(gson.toJson(report));
         Files.write(reportFile.toPath(), content.getBytes());
+
+        return content;
     }
 
     private static Report createReport(
