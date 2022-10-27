@@ -3,7 +3,7 @@ Common reporting utility for all verticals
 
 # Sample Command
 * mvn compile
-* mvn exec:java -Dexec.mainClass=com.tiket.db.DBUtil -Dvertical=all -Dtribe=all -Dmodule=all -Dplatform=all -Dtesttype=all -Denvironment=all -DrunID=1234
+* mvn exec:java -Dexec.mainClass=com.tiket.db.DBUtil -Dvertical=all -Dtribe=all -Dmodule=all -Dplatform=all -Dtesttype=all -Denvironment=all -DrunID=1234 "-DemailIDs=email1@tiket.com, email2@tiket.com"
 
 # Params
 * vertical -> all | specific vertical name
@@ -19,6 +19,8 @@ Common reporting utility for all verticals
 * environment -> all | staging | production
   * Selecting all means no filter based on environment
 * runID -> particular run ID from testrail
+* emailIDs -> comma separated email IDs
+  * this is optional, if not provided emails will not be sent.
 
 # Notes for Intellij Idea IDE
 * Turn on the annotation processor from preferences
