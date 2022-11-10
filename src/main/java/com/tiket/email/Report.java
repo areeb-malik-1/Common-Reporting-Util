@@ -1,5 +1,6 @@
 package com.tiket.email;
 
+import com.google.gson.annotations.SerializedName;
 import com.tiket.model.Status;
 
 import java.math.BigDecimal;
@@ -9,6 +10,7 @@ import java.util.List;
 
 public class Report {
 
+    @SerializedName("1. Verticals")
     public List<Vertical> verticals = new ArrayList<>();
 
     public Report fromRawReport(RawReport rawReport) {
@@ -19,6 +21,9 @@ public class Report {
                 int total = t.statuses.size();
                 int pass = (int) t.statuses.stream().filter(s -> s == Status.PASS).count();
                 tribe.passPercentage = getTruncatedValue(((double) pass / total) * 100);
+                tribe.pass = pass;
+                tribe.fail = total - pass;
+                tribe.total = total;
                 vertical.tribes.add(tribe);
             });
             verticals.add(vertical);
@@ -28,7 +33,9 @@ public class Report {
     }
 
     public static class Vertical {
+        @SerializedName("1. Name")
         public String name;
+        @SerializedName("2. Tribes")
         public List<Tribe> tribes = new ArrayList<>();
         public Vertical(String name) {
             this.name = name;
@@ -36,8 +43,16 @@ public class Report {
     }
 
     public static class Tribe {
+        @SerializedName("1. Name")
         public String name;
+        @SerializedName("2. Pass%")
         public double passPercentage;
+        @SerializedName("3. Pass")
+        public int pass;
+        @SerializedName("4. Fail")
+        public int fail;
+        @SerializedName("5. Total")
+        public int total;
         public Tribe(String name) {
             this.name = name;
         }

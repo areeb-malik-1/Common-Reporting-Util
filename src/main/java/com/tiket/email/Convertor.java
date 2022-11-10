@@ -3,6 +3,7 @@ package com.tiket.email;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.Set;
 
 public class Convertor {
@@ -35,14 +36,15 @@ public class Convertor {
         if (item instanceof JSONArray)
             return convertToHtmlTable((JSONArray) item);
 
-        Set<String> keys = jsonArray.getJSONObject(0).keySet();
+        List<String> keys = jsonArray.getJSONObject(0).keySet().stream().sorted().toList();
         StringBuilder html = new StringBuilder();
         html.append("<table style=\"border: 1px solid #ddd; padding: 8px;\">");
 
         // HEAD
         html.append("<tr style=\"background-color: #4CAF50; color: white;padding-top: 5px; padding-bottom: 5px;\">");
         keys.forEach(key -> {
-            html.append("<th style=\"text-align: left;\">").append(key).append("</th>");
+            String title = key.substring(2);    // Removing the numbers used for sorting in pojo name
+            html.append("<th style=\"text-align: left;\">").append(title).append("</th>");
         });
         html.append("</tr>");
 
