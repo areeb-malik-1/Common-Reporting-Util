@@ -93,19 +93,25 @@ public class DBUtil {
             Environment environment,
             String runID
     ) {
+        Comparator<DBEntry> sortByTestRailID = Comparator.comparing(DBEntry::testRailID);
+        Comparator<DBEntry> sortByTimestamp = Comparator.comparing(DBEntry::timestamp);
+        Comparator<DBEntry> dbEntryComparator = sortByTestRailID.thenComparing(sortByTimestamp);
         List<DBEntry> entries = getFilteredEntries(vertical, tribe, module, platform, testtype, environment, runID)
-                .sorted(Comparator.comparing(DBEntry::testRailID))
-                .sorted(Comparator.comparing(DBEntry::timestamp))
+                .sorted(dbEntryComparator)
                 .toList();
         log.debug("sorted entries: " + gson.toJson(entries));
+        entries.forEach(e -> log.debug("sortedEntry: " + e.testRailID()));
         List<DBEntry> latestEntries = new ArrayList<>();
         for(int i=0; i<entries.size()-1; i++) {
             DBEntry entryI = entries.get(i);
             DBEntry entryJ = entries.get(i+1);
             String testI = entryI.testRailID();
             String testJ = entryJ.testRailID();
-            if(!testI.equals(testJ)) {
+            if(!testI.equalsIgnoreCase(testJ)) {
                 latestEntries.add(entryI);
+                log.debug("i: " + i + ", i+1: " + (i+1) );
+                log.debug("ei: " + entryI.testRailID());
+                log.debug("ej: " + entryJ.testRailID());
             }
         }
         if(!entries.get(entries.size()-1).equals(entries.get(entries.size()-2))) {
