@@ -39,6 +39,15 @@ public class DBUtil {
         Environment environment = Environment.parse(System.getProperty("environment"));
         String runID = System.getProperty("runID").strip();
 
+        log.info("Running with following params");
+        log.info("vertical: " + vertical);
+        log.info("tribe: " + tribe);
+        log.info("module: " + module);
+        log.info("platform: " + platform);
+        log.info("testtype: " + testType);
+        log.info("environment: " + environment);
+        log.info("runID: " + runID);
+
         Report report = createReport(vertical, tribe, module, platform, testType, environment, runID);
         log.info(gson.toJson(report));
 
