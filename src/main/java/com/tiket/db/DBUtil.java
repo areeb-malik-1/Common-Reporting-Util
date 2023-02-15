@@ -2,11 +2,11 @@ package com.tiket.db;
 
 import com.google.gson.Gson;
 import com.tiket.email.Convertor;
-import com.tiket.io.PropertiesReader;
-import com.tiket.model.*;
 import com.tiket.email.EmailProcessor;
 import com.tiket.email.RawReport;
 import com.tiket.email.Report;
+import com.tiket.io.PropertiesReader;
+import com.tiket.model.*;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -14,7 +14,10 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import java.io.File;
 import java.nio.file.Files;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Properties;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 

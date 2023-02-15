@@ -14,6 +14,8 @@ public class Report {
     public List<Vertical> verticals = new ArrayList<>();
 
     public Report fromRawReport(RawReport rawReport) {
+        Vertical totalVertical = new Vertical("Total");
+        Tribe accumulated = new Tribe("Result");
         rawReport.verticals.forEach(v -> {
             Vertical vertical = verticals.stream().filter(vr -> vr.name.equalsIgnoreCase(v.name)).findFirst().orElse(new Vertical(v.name));
             v.tribes.forEach(t -> {
@@ -22,13 +24,19 @@ public class Report {
                 int pass = (int) t.statuses.stream().filter(s -> s == Status.PASS).count();
                 tribe.passPercentage = getTruncatedValue(((double) pass / total) * 100);
                 tribe.pass = pass;
-                tribe.fail = total - pass;
+                accumulated.pass += pass;
+                int fail = total - pass;
+                tribe.fail = fail;
+                accumulated.fail += fail;
                 tribe.total = total;
                 vertical.tribes.add(tribe);
             });
             verticals.add(vertical);
         });
-
+        accumulated.total = accumulated.pass + accumulated.fail;
+        accumulated.passPercentage = getTruncatedValue(((double) accumulated.pass / accumulated.total) * 100);
+        totalVertical.tribes.add(accumulated);
+        verticals.add(totalVertical);
         return this;
     }
 
