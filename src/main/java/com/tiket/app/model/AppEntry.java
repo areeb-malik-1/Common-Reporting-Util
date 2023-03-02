@@ -1,6 +1,10 @@
-package com.tiket.model;
+package com.tiket.app.model;
 
-public record DBEntry(
+import com.tiket.common.model.Environment;
+import com.tiket.common.model.Status;
+import com.tiket.common.model.TestType;
+
+public record AppEntry(
         Status status,
         String verticalName,
         String tribeName,

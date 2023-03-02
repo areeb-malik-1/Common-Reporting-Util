@@ -1,4 +1,4 @@
-package com.tiket.io;
+package com.tiket.common.io;
 
 import lombok.SneakyThrows;
 

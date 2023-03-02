@@ -1,16 +1,16 @@
-package com.tiket.email;
+package com.tiket.app.reporting;
 
-import com.tiket.model.DBEntry;
-import com.tiket.model.Status;
+import com.tiket.app.model.AppEntry;
+import com.tiket.common.model.Status;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RawReport {
+public class RawAppReport {
 
     public List<Vertical> verticals = new ArrayList<>();
 
-    public void add(DBEntry entry) {
+    public void add(AppEntry entry) {
         String verticalName = entry.verticalName();
         String tribeName = entry.tribeName();
         Status status = entry.status();

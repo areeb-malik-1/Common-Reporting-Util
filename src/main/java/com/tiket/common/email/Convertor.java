@@ -1,4 +1,4 @@
-package com.tiket.email;
+package com.tiket.common.email;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

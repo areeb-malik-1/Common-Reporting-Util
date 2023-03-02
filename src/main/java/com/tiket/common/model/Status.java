@@ -1,4 +1,4 @@
-package com.tiket.model;
+package com.tiket.common.model;
 
 import org.apache.commons.lang3.NotImplementedException;
 

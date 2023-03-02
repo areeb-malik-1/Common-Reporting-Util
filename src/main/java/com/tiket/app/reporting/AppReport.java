@@ -1,22 +1,22 @@
-package com.tiket.email;
+package com.tiket.app.reporting;
 
 import com.google.gson.annotations.SerializedName;
-import com.tiket.model.Status;
+import com.tiket.common.model.Status;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Report {
+public class AppReport {
 
     @SerializedName("1. Verticals")
     public List<Vertical> verticals = new ArrayList<>();
 
-    public Report fromRawReport(RawReport rawReport) {
+    public AppReport fromRawReport(RawAppReport rawAppReport) {
         Vertical totalVertical = new Vertical("Total");
         Tribe accumulated = new Tribe("Result");
-        rawReport.verticals.forEach(v -> {
+        rawAppReport.verticals.forEach(v -> {
             Vertical vertical = verticals.stream().filter(vr -> vr.name.equalsIgnoreCase(v.name)).findFirst().orElse(new Vertical(v.name));
             v.tribes.forEach(t -> {
                 Tribe tribe = new Tribe(t.name);

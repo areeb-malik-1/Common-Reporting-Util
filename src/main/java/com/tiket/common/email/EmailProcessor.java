@@ -1,6 +1,6 @@
-package com.tiket.email;
+package com.tiket.common.email;
 
-import com.tiket.io.PropertiesReader;
+import com.tiket.common.io.PropertiesReader;
 import lombok.SneakyThrows;
 
 import javax.mail.*;
@@ -18,6 +18,7 @@ public class EmailProcessor {
     private static final Properties PROPERTIES = PropertiesReader.read("src/main/resources/email.properties");
     private static final String TO = System.getProperty("emailIDs");
     private static final String REPORT_LOCATION = "report/report.html";
+    private static final String PROJECT = System.getProperty("project");
 
     @SneakyThrows
     public static void processEmail(String htmlReportContent) {
@@ -47,12 +48,13 @@ public class EmailProcessor {
         message.setSubject(createSubject());
 
         String htmlBody;
+        String result = "api".equalsIgnoreCase(PROJECT) ? "API result" : "App result";
         if(isJenkinsSystem()) {
             String buildUrl = System.getenv("BUILD_URL");
             String reportUrl = buildUrl + "artifact/report/report.html";
-            htmlBody = "<html><head><style>table, th, td {border: 1px solid;}</style></head><body><h2><a href='" + buildUrl + "'>" + buildUrl + "</a></h2><h2><a href='" + reportUrl + "'>Report</a></h2><h1>Results</h1>" + htmlReportContent + "</body></html>";
+            htmlBody = "<html><head><style>table, th, td {border: 1px solid;}</style></head><body><h2><a href='" + buildUrl + "'>" + buildUrl + "</a></h2><h2><a href='" + reportUrl + "'>Report</a></h2><h1>" + result + "</h1>" + htmlReportContent + "</body></html>";
         } else {
-            htmlBody = "<html><head><style>table, th, td {border: 1px solid;}</style></head><body><h1>Results</h1>" + htmlReportContent + "</body></html>";
+            htmlBody = "<html><head><style>table, th, td {border: 1px solid;}</style></head><body><h1>" + result + "</h1>" + htmlReportContent + "</body></html>";
         }
 
         BodyPart bodyPart = new MimeBodyPart();

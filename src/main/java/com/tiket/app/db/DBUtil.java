@@ -1,18 +1,19 @@
-package com.tiket.db;
+package com.tiket.app.db;
 
 import com.google.gson.Gson;
-import com.tiket.email.Convertor;
-import com.tiket.email.EmailProcessor;
-import com.tiket.email.RawReport;
-import com.tiket.email.Report;
-import com.tiket.io.PropertiesReader;
-import com.tiket.model.*;
-import lombok.SneakyThrows;
+import com.tiket.app.model.AppEntry;
+import com.tiket.app.model.Platform;
+import com.tiket.app.reporting.AppReport;
+import com.tiket.app.reporting.RawAppReport;
+import com.tiket.common.db.CommonDBUtil;
+import com.tiket.common.email.EmailProcessor;
+import com.tiket.common.io.PropertiesReader;
+import com.tiket.common.model.Environment;
+import com.tiket.common.model.Status;
+import com.tiket.common.model.TestType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,11 +25,15 @@ import java.util.stream.Stream;
 @Slf4j
 public class DBUtil {
 
-    private static final Properties PROPERTIES = PropertiesReader.read("src/main/resources/config.properties");
+    private static final Properties PROPERTIES = PropertiesReader.read("src/main/resources/app.config.properties");
     private static final String DB_URL = PROPERTIES.getProperty("db.url").trim();
     private static final String DB_USERNAME = PROPERTIES.getProperty("db.username");
     private static final String DB_PASSWORD = PROPERTIES.getProperty("db.password");
-    private static final String DB_STATEMENT = "SELECT * FROM results";
+    private static final String DB_STATEMENT = """
+            SELECT * 
+            FROM public.results AS "RESULTS"
+            WHERE "RESULTS"."timestamp" > %s
+            """.formatted(System.currentTimeMillis()-1000*60*60*24);
 
     private static final Gson gson = new Gson();
 
@@ -51,32 +56,14 @@ public class DBUtil {
         log.info("environment: " + environment);
         log.info("runID: " + runID);
 
-        Report report = createReport(vertical, tribe, module, platform, testType, environment, runID);
-        log.info(gson.toJson(report));
+        AppReport appReport = createReport(vertical, tribe, module, platform, testType, environment, runID);
+        log.info(gson.toJson(appReport));
 
-        String htmlReportContent = createHtmlReportFile(report);
+        String htmlReportContent = CommonDBUtil.createHtmlReportFile(appReport);
         EmailProcessor.processEmail(htmlReportContent);
     }
 
-    @SneakyThrows
-    private static String createHtmlReportFile(Report report) {
-
-        final File reportDirectory = new File("./report");
-        if(!reportDirectory.exists()) {
-            Files.createDirectories(reportDirectory.toPath());
-        }
-
-        final File reportFile = new File("./report/report.html");
-        Files.deleteIfExists(reportFile.toPath());
-        Files.createFile(reportFile.toPath());
-
-        String content = Convertor.fromJson(gson.toJson(report));
-        Files.write(reportFile.toPath(), content.getBytes());
-
-        return content;
-    }
-
-    private static Report createReport(
+    private static AppReport createReport(
             String vertical,
             String tribe,
             String module,
@@ -85,18 +72,17 @@ public class DBUtil {
             Environment environment,
             String runID
     ) {
-        List<DBEntry> latestEntries = getLatestEntries(vertical, tribe, module, platform, testtype, environment, runID);
-
-        RawReport rawReport = new RawReport();
+        List<AppEntry> latestEntries = getLatestEntries(vertical, tribe, module, platform, testtype, environment, runID);
+        RawAppReport rawAppReport = new RawAppReport();
         latestEntries.stream()
                 .peek(dbEntry -> log.debug(dbEntry.toString()))
-                .forEach(rawReport::add);
-        log.debug(gson.toJson(rawReport));
-        Report report = new Report();
-        return report.fromRawReport(rawReport);
+                .forEach(rawAppReport::add);
+        log.debug(gson.toJson(rawAppReport));
+        AppReport appReport = new AppReport();
+        return appReport.fromRawReport(rawAppReport);
     }
 
-    private static List<DBEntry> getLatestEntries(
+    private static List<AppEntry> getLatestEntries(
             String vertical,
             String tribe,
             String module,
@@ -105,18 +91,18 @@ public class DBUtil {
             Environment environment,
             String runID
     ) {
-        Comparator<DBEntry> sortByTestRailID = Comparator.comparing(DBEntry::testRailID);
-        Comparator<DBEntry> sortByTimestamp = Comparator.comparing(DBEntry::timestamp);
-        Comparator<DBEntry> dbEntryComparator = sortByTestRailID.thenComparing(sortByTimestamp);
-        List<DBEntry> entries = getFilteredEntries(vertical, tribe, module, platform, testtype, environment, runID)
+        Comparator<AppEntry> sortByTestRailID = Comparator.comparing(AppEntry::testRailID);
+        Comparator<AppEntry> sortByTimestamp = Comparator.comparing(AppEntry::timestamp);
+        Comparator<AppEntry> dbEntryComparator = sortByTestRailID.thenComparing(sortByTimestamp);
+        List<AppEntry> entries = getFilteredEntries(vertical, tribe, module, platform, testtype, environment, runID)
                 .sorted(dbEntryComparator)
                 .toList();
         log.debug("sorted entries: " + gson.toJson(entries));
         entries.forEach(e -> log.debug("sortedEntry: " + e.testRailID()));
-        List<DBEntry> latestEntries = new ArrayList<>();
+        List<AppEntry> latestEntries = new ArrayList<>();
         for(int i=0; i<entries.size()-1; i++) {
-            DBEntry entryI = entries.get(i);
-            DBEntry entryJ = entries.get(i+1);
+            AppEntry entryI = entries.get(i);
+            AppEntry entryJ = entries.get(i+1);
             String testI = entryI.testRailID();
             String testJ = entryJ.testRailID();
             if(!testI.equalsIgnoreCase(testJ)) {
@@ -133,7 +119,7 @@ public class DBUtil {
         return latestEntries;
     }
 
-    private static Stream<DBEntry> getFilteredEntries(
+    private static Stream<AppEntry> getFilteredEntries(
             String vertical,
             String tribe,
             String module,
@@ -142,14 +128,14 @@ public class DBUtil {
             Environment environment,
             String runID
     ) {
-        Stream<DBEntry> latestEntries = allEntries(runID);
-        Predicate<DBEntry> matchVertical = e -> vertical.equalsIgnoreCase("all") || e.verticalName().replaceAll(" ", "").equalsIgnoreCase(vertical);
-        Predicate<DBEntry> matchTribe = e -> tribe.equalsIgnoreCase("all") || e.tribeName().replaceAll(" ", "").equalsIgnoreCase(tribe);
-        Predicate<DBEntry> matchModule = e -> module.equalsIgnoreCase("all") || e.moduleName().replaceAll(" ", "").equalsIgnoreCase(module);
-        Predicate<DBEntry> matchPlatform = e -> platform.equals(Platform.ALL) || e.platform().equals(platform);
-        Predicate<DBEntry> matchTestType = e -> testtype.equals(TestType.ALL) || e.testType().equals(testtype);
-        Predicate<DBEntry> matchEnvironment = e -> environment.equals(Environment.ALL) || e.environment().equals(environment);
-        Predicate<DBEntry> matchDate = e -> System.currentTimeMillis() - e.timestamp() < 1000 * 60 * 60 * 24;
+        Stream<AppEntry> latestEntries = allEntries(runID);
+        Predicate<AppEntry> matchVertical = e -> vertical.equalsIgnoreCase("all") || e.verticalName().replaceAll(" ", "").equalsIgnoreCase(vertical);
+        Predicate<AppEntry> matchTribe = e -> tribe.equalsIgnoreCase("all") || e.tribeName().replaceAll(" ", "").equalsIgnoreCase(tribe);
+        Predicate<AppEntry> matchModule = e -> module.equalsIgnoreCase("all") || e.moduleName().replaceAll(" ", "").equalsIgnoreCase(module);
+        Predicate<AppEntry> matchPlatform = e -> platform.equals(Platform.ALL) || e.platform().equals(platform);
+        Predicate<AppEntry> matchTestType = e -> testtype.equals(TestType.ALL) || e.testType().equals(testtype);
+        Predicate<AppEntry> matchEnvironment = e -> environment.equals(Environment.ALL) || e.environment().equals(environment);
+        Predicate<AppEntry> matchDate = e -> System.currentTimeMillis() - e.timestamp() < 1000 * 60 * 60 * 24;
         return latestEntries
                 .filter(matchVertical)
                 .filter(matchTribe)
@@ -160,13 +146,13 @@ public class DBUtil {
                 .filter(matchDate);
     }
 
-    private static Stream<DBEntry> allEntries(String runID) {
-        List<DBEntry> entries = new ArrayList<>();
+    private static Stream<AppEntry> allEntries(String runID) {
+        List<AppEntry> entries = new ArrayList<>();
         ResultSet resultSet = executeQuery(runID);
         while (true) {
             try {
                 if (!resultSet.next()) break;
-                DBEntry entry = new DBEntry(
+                AppEntry entry = new AppEntry(
                         Status.parse(resultSet.getString("status").trim()),
                         resultSet.getString("vertical_name").trim(),
                         resultSet.getString("tribe_name").trim(),
