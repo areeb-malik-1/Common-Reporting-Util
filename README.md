@@ -4,6 +4,7 @@ Common reporting utility for all verticals
 # Sample Command
 * mvn compile
 * mvn exec:java -Dexec.mainClass=com.tiket.app.db.DBUtil -Dproject=app -Dvertical=all -Dtribe=all -Dmodule=all -Dplatform=all -Dtesttype=all -Denvironment=all -DrunID=1234 "-DemailIDs=email1@tiket.com, email2@tiket.com"
+* mvn exec:java -Dexec.mainClass=com.tiket.api.db.DBUtil -Dproject=api -Dvertical=all -Dtribe=all -Dmodule=all -Dtesttype=all -Denvironment=all "-DemailIDs=email1@tiket.com, email2@tiket.com"
 
 # Params
 * project -> app | api

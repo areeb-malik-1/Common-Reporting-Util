@@ -38,6 +38,7 @@ public class DBUtil {
 
     public static void main(String[] args) {
 
+        String project = System.getProperty("project");
         String vertical = System.getProperty("vertical").toLowerCase().strip().replaceAll(" ", "");
         String tribe = System.getProperty("tribe").toLowerCase().strip().replaceAll(" ", "");
         String module = System.getProperty("module").toLowerCase().strip().replaceAll(" ", "");
@@ -45,6 +46,7 @@ public class DBUtil {
         Environment environment = Environment.parse(System.getProperty("environment"));
 
         log.info("Running with following params");
+        log.info("project: " + project);
         log.info("vertical: " + vertical);
         log.info("tribe: " + tribe);
         log.info("module: " + module);
