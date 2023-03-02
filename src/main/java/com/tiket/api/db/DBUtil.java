@@ -36,9 +36,7 @@ public class DBUtil {
 
     private static final Gson gson = new Gson();
 
-    public static void main(String[] args) throws ClassNotFoundException {
-
-        Class.forName("com.mysql.jdbc.Driver");
+    public static void main(String[] args) {
 
         String project = System.getProperty("project");
         String vertical = System.getProperty("vertical").toLowerCase().strip().replaceAll(" ", "");
