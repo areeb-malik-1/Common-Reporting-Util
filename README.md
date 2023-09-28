@@ -18,7 +18,7 @@ Common reporting utility for all verticals
   * Selecting all means no filter based on platform
 * testtype -> all | sanity | regression
   * Selecting all means no filter based on testtype
-* environment -> all | staging | production
+* environment -> all | staging | production | gk2
   * Selecting all means no filter based on environment
 * runID -> particular run ID from testrail
 * emailIDs -> comma separated email IDs
